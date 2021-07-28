@@ -6,6 +6,7 @@ window.onload = (event) => {
     if (user) {
       console.log('Logged in as: ' + user.displayName);
       googleUser = user;
+      getNotes()
     } else {
       window.location = 'index.html'; // If not logged in, navigate back to login page.
     }
@@ -14,11 +15,16 @@ window.onload = (event) => {
 
 const getNotes = () => {
     console.log('getting notes for', googleUser.uid);
+
     const label = document.querySelector('#labelInput').value;
 
-    const notesRef = firebase.database().ref(`users/${googleUser.uid}`)
-    // https://stackoverflow.com/questions/40471284/firebase-search-by-child-value
-    notesRef.orderByChild('label').equalTo(label).on('value', (db) => {
+    let notesRef = firebase.database().ref(`users/${googleUser.uid}`)
+    if (label !== "") {
+        // https://stackoverflow.com/questions/40471284/firebase-search-by-child-value
+        notesRef = notesRef.orderByChild('label').equalTo(label) 
+    }
+
+    notesRef.on('value', (db) => {
         const data = db.val();
         renderData(data);
     })
@@ -26,16 +32,14 @@ const getNotes = () => {
 
 const renderData = (data) => {
     console.log(data);
-    // let html = '';
+    // Clear notes element
+    document.querySelector('#app').innerHTML = "";
+
     for (const dataId in data) {
         const note = data[dataId];
         const columnEl = dynamicRenderCard(note);
         document.querySelector('#app').appendChild(columnEl)
-        // const cardHtml = renderCard(note);
-        // html += cardHtml;
     }
-    // document.querySelector('#app').innerHTML = html;
-    // add html to the page
 }
 
 const renderCard = (note) => {
@@ -60,6 +64,7 @@ const dynamicRenderCard = (note) => {
     
     const cardEl = document.createElement('div')
     cardEl.className = 'card'
+    cardEl.style.backgroundColor = '#' + getRandomColor()
 
     // Header element
     const headerEl = document.createElement('header')
@@ -67,7 +72,11 @@ const dynamicRenderCard = (note) => {
     const spanEl = document.createElement('span')
     spanEl.className = 'card-header-title'
     spanEl.innerText = note.title
+    const labelSpan = document.createElement('span')
+    labelSpan.className = 'tag is-primary'
+    labelSpan.innerText = note.label
     headerEl.appendChild(spanEl)
+    headerEl.appendChild(labelSpan)
 
     // Content element
     const cardContentEl = document.createElement('div')
@@ -95,4 +104,9 @@ const dynamicRenderCard = (note) => {
     columnEl.appendChild(cardEl)
 
     return cardEl;
+}
+
+// https://css-tricks.com/snippets/javascript/random-hex-color/
+const getRandomColor = () => {
+    return Math.floor(Math.random()*16777215).toString(16);
 }
