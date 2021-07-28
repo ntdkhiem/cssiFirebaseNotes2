@@ -60,11 +60,12 @@ const renderCard = (note) => {
 
 const dynamicRenderCard = (note) => {
     const columnEl = document.createElement('div')
-    columnEl.className = 'column is-one-quarter'
+    columnEl.className = 'column is-half'
     
     const cardEl = document.createElement('div')
     cardEl.className = 'card'
-    cardEl.style.backgroundColor = '#' + getRandomColor()
+    cardEl.style.backgroundColor = `hsl(${getRandomColor()}, 100%, 90%)`
+    // cardEl.style.color = 'white'
 
     // Header element
     const headerEl = document.createElement('header')
@@ -103,10 +104,10 @@ const dynamicRenderCard = (note) => {
     cardEl.appendChild(cardFooterEl)
     columnEl.appendChild(cardEl)
 
-    return cardEl;
+    return columnEl;
 }
 
 // https://css-tricks.com/snippets/javascript/random-hex-color/
 const getRandomColor = () => {
-    return Math.floor(Math.random()*16777215).toString(16);
+    return Math.floor(Math.random()*360);
 }
